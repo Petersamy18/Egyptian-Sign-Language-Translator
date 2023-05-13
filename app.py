@@ -24,23 +24,6 @@ actions = np.array(["أسمك ايه ؟","الحمد لله تمام","بتشت�
                         ,"تيجي معايا ؟","جيران" ,"صديق","عائلة","عريس","مشاء الله","مع السلامة","وحشتني"])
 
 #Just a test script for testing the api in early phases
-@app.route("/")
-def test():
-     
-     # Set the URL for the Flask app
-     url="http://localhost:5000/process_video"
-      # Set the path to the video file you want to process
-     video_path ='C:\\Users\\LENOVO\\Pictures\\Camera Roll\\WIN_20230508_17_37_48_Pro.mp4'
-      # Create a dictionary to hold the request data
-     data = {'video': open(video_path, 'rb')}
-      # Send the request to the Flask app
-     response = requests.post(url, files=data)
-       # Print the response from the Flask app
-     print(response.status_code)
-     #json_Response = jsonify({'status_code': response.status_code, 'output': response.text})
-     reshaped_Text = arabic_reshaper.reshape(response.text)
-     arabic_Sentence = get_display(reshaped_Text)
-     return arabic_Sentence
 
 
 @app.route('/process_video', methods=['POST'])
