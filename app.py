@@ -14,7 +14,11 @@ from tensorflow.keras.utils import to_categorical
 import arabic_reshaper
 from bidi.algorithm import get_display
 import requests
+#from app import app
+
 app = Flask(__name__)
+if __name__ == "__main__":
+    app.run()
 
 app.config['JSON_AS_ASCII'] = False
 
@@ -24,7 +28,9 @@ actions = np.array(["أسمك ايه ؟","الحمد لله تمام","بتشت�
                         ,"تيجي معايا ؟","جيران" ,"صديق","عائلة","عريس","مشاء الله","مع السلامة","وحشتني"])
 
 #Just a test script for testing the api in early phases
-
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
 
 @app.route('/process_video', methods=['POST'])
 def process_video():
