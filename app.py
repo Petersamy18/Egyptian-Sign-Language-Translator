@@ -1,20 +1,12 @@
 from flask import Flask, render_template, request, jsonify
-import json
-import pandas as pd 
-import pickle
-from sklearn.model_selection import train_test_split
 from keras.models import load_model
-from scipy import stats
 import cv2
 import os
 import numpy as np
 import mediapipe as mp
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.utils import to_categorical
 import arabic_reshaper
 from bidi.algorithm import get_display
-import requests
-#from app import app
+
 
 app = Flask(__name__)
 if __name__ == "__main__":
@@ -30,7 +22,7 @@ actions = np.array(["أسمك ايه ؟","الحمد لله تمام","بتشت�
 #Just a test script for testing the api in early phases
 @app.route("/")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    return "<p>Egyptian Sign Language Translator</p>"
 
 @app.route('/process_video', methods=['POST'])
 def process_video():
@@ -54,7 +46,6 @@ def process_video():
     threshold = 0.7
     mp_holistic = mp.solutions.holistic
     with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
-            resList = []
             for frame in frames:
 
                 # Make detections
@@ -71,9 +62,6 @@ def process_video():
                 
                 if len(sequence) == 60:
                     res = model.predict(np.expand_dims(sequence, axis=0))[0]
-                    reshaped_Text = arabic_reshaper.reshape(actions[np.argmax(res)])
-                    arabic_Sentence = get_display(reshaped_Text)
-                    resList.append(arabic_Sentence)
                     predictions.append(np.argmax(res))
 
 
@@ -81,36 +69,16 @@ def process_video():
                         if res[np.argmax(res)] > threshold: 
                             
                             if len(sentence) > 0: 
-                                #Modify this if condition as the sentence list always has different format (bel3araby)
                                 if actions[np.argmax(res)] != sentence[-1]:
-                                    reshaped_Text = arabic_reshaper.reshape(actions[np.argmax(res)])
-                                    arabic_Sentence = get_display(reshaped_Text)
-                                    sentence.append(arabic_Sentence)
-                                    #print(sentence[-1])
+                                    sentence.append(actions[np.argmax(res)])
                             else:
-                                    reshaped_Text = arabic_reshaper.reshape(actions[np.argmax(res)])
-                                    arabic_Sentence = get_display(reshaped_Text)
-                                    sentence.append(arabic_Sentence)
-                                    #print(sentence[-1])
-
+                                sentence.append(actions[np.argmax(res)])
 
     #if some frames matches the specified threshold
     if(len(sentence) != 0):
-        print(sentence[-1])
-        print("Above threshold")
-        reshaped_Text = arabic_reshaper.reshape(sentence[-1])
-
-        #reshaped_Text = arabic_reshaper.reshape("عذرا, لم يتم التحقق جيدا من الجملة.")
-
-        arabic_Sentence = get_display(reshaped_Text)
-        return arabic_Sentence
-
+        return sentence[-1]
     else:
-        #if Nothing matches the threshold then choose the first 60 frames
-        print(resList[0])
-        print("First 60 frames")
-        reshaped_Text = arabic_reshaper.reshape("عذرا, لم يتم التحقق جيدا من الجملة.")
-        arabic_Sentence = get_display(reshaped_Text)
+        #if Nothing matches the threshold then return an expressive statement
         return "عذرا, لم يتم التحقق جيدا من الجملة."
     
 def video_to_frames(video_path, frame_interval=1):
